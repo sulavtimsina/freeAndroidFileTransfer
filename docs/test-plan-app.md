@@ -1,8 +1,8 @@
 # Desktop App Test Plan
 
-**Ticket:** JP-017  
-**Author:** Riku (QA)  
-**Date:** 2026-02-20  
+**Ticket:** JP-017
+**Author:** Riku (QA)
+**Date:** 2026-02-20
 **App:** Android File Transfer (Desktop)
 
 ---
@@ -44,11 +44,11 @@
 | FB-001 | Navigate into folder | Device connected, root listing visible | 1. Double-click a folder | Folder contents displayed, path updated | P0 | Both |
 | FB-002 | Navigate back (breadcrumb) | Inside a subfolder | 1. Click parent folder in breadcrumb | Navigates to parent, listing updated | P0 | Both |
 | FB-003 | Navigate to root via breadcrumb | Deep in folder hierarchy | 1. Click root in breadcrumb | Returns to root listing | P1 | Both |
-| FB-004 | Sort by name | Directory with multiple files | 1. Click "Name" column header 2. Click again | Sorts ascending then descending | P1 | Both |
-| FB-005 | Sort by size | Directory with multiple files | 1. Click "Size" column header | Files sorted by size | P1 | Both |
-| FB-006 | Sort by date | Directory with multiple files | 1. Click "Date" column header | Files sorted by date modified | P1 | Both |
+| FB-004 | Sort by name | Directory with multiple files | 1. Click Name column header 2. Click again | Sorts ascending then descending | P1 | Both |
+| FB-005 | Sort by size | Directory with multiple files | 1. Click Size column header | Files sorted by size | P1 | Both |
+| FB-006 | Sort by date | Directory with multiple files | 1. Click Date column header | Files sorted by date modified | P1 | Both |
 | FB-007 | Search files | Directory with files | 1. Type query in search box | File list filtered to matching results | P1 | Both |
-| FB-008 | Empty folder | Device with an empty folder | 1. Navigate into empty folder | Empty state shown ("No files") | P1 | Both |
+| FB-008 | Empty folder | Device with an empty folder | 1. Navigate into empty folder | Empty state shown (No files) | P1 | Both |
 | FB-009 | Deep path (10+ levels) | Deeply nested folder structure on device | 1. Navigate 10+ levels deep | All levels accessible, breadcrumb scrollable/truncated | P2 | Manual |
 | FB-010 | Special characters in filenames | Files with spaces, unicode, emoji, quotes | 1. Navigate to folder with special-char files | All filenames rendered correctly | P1 | Both |
 | FB-011 | Large directory (1000+ files) | Folder with 1000+ files | 1. Navigate to large folder | All files listed, no hang (< 5s load) | P1 | Both |
@@ -81,7 +81,7 @@
 
 | ID | Description | Preconditions | Steps | Expected | Priority | Type |
 |----|-------------|---------------|-------|----------|----------|------|
-| FO-001 | Create folder | Device connected, in writable directory | 1. Click "New Folder" 2. Enter name 3. Confirm | Folder created on device, appears in listing | P0 | Both |
+| FO-001 | Create folder | Device connected, in writable directory | 1. Click New Folder 2. Enter name 3. Confirm | Folder created on device, appears in listing | P0 | Both |
 | FO-002 | Rename file | Device connected, file selected | 1. Right-click file 2. Select rename 3. Enter new name 4. Confirm | File renamed on device | P1 | Both |
 | FO-003 | Rename folder | Device connected, folder selected | 1. Right-click folder 2. Select rename 3. Enter new name | Folder renamed on device | P1 | Both |
 | FO-004 | Delete single file | Device connected, file selected | 1. Select file 2. Delete 3. Confirm prompt | File removed from device | P0 | Both |
@@ -112,13 +112,13 @@
 
 | ID | Description | Preconditions | Steps | Expected | Priority | Type |
 |----|-------------|---------------|-------|----------|----------|------|
-| UI-001 | No device connected state | App launched, no device | 1. Launch app with no device | "Connect a device" prompt with instructions | P0 | Both |
+| UI-001 | No device connected state | App launched, no device | 1. Launch app with no device | Connect a device prompt with instructions | P0 | Both |
 | UI-002 | Connecting state | App running | 1. Connect device | Connecting/loading indicator shown | P1 | Both |
 | UI-003 | Connected state | Device connected | 1. Observe UI | Device name, storage info, file listing shown | P0 | Both |
 | UI-004 | Disconnected state | Device was connected then removed | 1. Disconnect device | Clear disconnected message, retry option | P0 | Both |
 | UI-005 | Loading state (file list) | Navigate to large directory | 1. Open folder with many files | Loading spinner/indicator visible | P1 | Both |
 | UI-006 | Error state (generic) | Force an error condition | 1. Trigger error (e.g., read protected dir) | Error message displayed, not raw exception | P1 | Manual |
-| UI-007 | Empty state (no files) | Navigate to empty folder | 1. Open empty folder | "No files" or equivalent empty state | P1 | Both |
+| UI-007 | Empty state (no files) | Navigate to empty folder | 1. Open empty folder | No files or equivalent empty state | P1 | Both |
 | UI-008 | Transfer progress state | Transfer in progress | 1. Start file transfer | Progress bar, file name, percentage, ETA visible | P0 | Both |
 | UI-009 | Window resize | App running with file list | 1. Resize window to various sizes | Layout adapts, no content clipping, min-size respected | P2 | Manual |
 | UI-010 | Dark/light mode | System theme set | 1. Switch OS theme | App follows system theme or has own toggle | P3 | Manual |
@@ -172,7 +172,7 @@
 ## Test Execution Strategy
 
 ### Automated Tests (CI)
-- All tests marked **Automated** or **Both** should have automated coverage
+- All tests marked Automated or Both should have automated coverage
 - Run on every PR and nightly
 - Use mock MTP device for unit/integration tests
 - Use real device in nightly E2E suite
@@ -183,12 +183,12 @@
 - Maintain manual test session logs
 
 ### Priority Execution Order
-1. **P0** — Must pass for any release (blockers)
-2. **P1** — Must pass for minor/major releases
-3. **P2** — Should pass, defer only with justification
-4. **P3** — Nice-to-have, test when time permits
+1. **P0** - Must pass for any release (blockers)
+2. **P1** - Must pass for minor/major releases
+3. **P2** - Should pass, defer only with justification
+4. **P3** - Nice-to-have, test when time permits
 
 ---
 
-**Total test cases:** 77  
+**Total test cases:** 77
 **P0:** 16 | **P1:** 38 | **P2:** 19 | **P3:** 4
