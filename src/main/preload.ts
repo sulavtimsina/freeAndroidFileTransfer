@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   files: {
     listDirectory: (path: string, sort?: any) => ipcRenderer.invoke('files:listDirectory', path, sort),
     getDirectoryTree: (basePath?: string) => ipcRenderer.invoke('files:getDirectoryTree', basePath),
+  },
   fileOps: {
     createFolder: (parentPath: string, folderName: string) =>
       ipcRenderer.invoke('file:createFolder', parentPath, folderName),

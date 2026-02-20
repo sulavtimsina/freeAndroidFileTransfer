@@ -45,12 +45,10 @@ function registerIpcHandlers(): void {
   ipcMain.handle('device:simulateConnect', () => dm.simulateConnect());
   ipcMain.handle('device:simulateDisconnect', () => dm.simulateDisconnect());
 
-  ipcMain.handle('files:listDirectory', (_e, path: string, sort?: any) => listDirectory(path, sort));
+  ipcMain.handle('files:listDirectory', (_e, dirPath: string, sort?: any) => listDirectory(dirPath, sort));
   ipcMain.handle('files:getDirectoryTree', (_e, basePath?: string) => getDirectoryTree(basePath));
 }
 
-app.whenReady().then(() => {
-  registerIpcHandlers();
 function registerFileOpsHandlers(): void {
   ipcMain.handle('file:createFolder', (_e, parentPath: string, folderName: string) =>
     createFolder(parentPath, folderName)
@@ -62,6 +60,7 @@ function registerFileOpsHandlers(): void {
 }
 
 app.whenReady().then(() => {
+  registerIpcHandlers();
   registerFileOpsHandlers();
   createWindow();
 });
