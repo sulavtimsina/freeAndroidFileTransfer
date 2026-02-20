@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import { getDeviceManager } from './usb/deviceManager';
+import { listDirectory, getDirectoryTree } from './files/fileService';
 
 const isDev = !app.isPackaged;
 let mainWindow: BrowserWindow | null = null;
@@ -42,6 +43,9 @@ function registerIpcHandlers(): void {
   ipcMain.handle('device:getConnected', () => dm.getConnectedDevice());
   ipcMain.handle('device:simulateConnect', () => dm.simulateConnect());
   ipcMain.handle('device:simulateDisconnect', () => dm.simulateDisconnect());
+
+  ipcMain.handle('files:listDirectory', (_e, path: string, sort?: any) => listDirectory(path, sort));
+  ipcMain.handle('files:getDirectoryTree', (_e, basePath?: string) => getDirectoryTree(basePath));
 }
 
 app.whenReady().then(() => {

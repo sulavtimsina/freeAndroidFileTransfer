@@ -13,4 +13,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     simulateConnect: () => ipcRenderer.invoke('device:simulateConnect'),
     simulateDisconnect: () => ipcRenderer.invoke('device:simulateDisconnect'),
   },
+  files: {
+    listDirectory: (path: string, sort?: any) => ipcRenderer.invoke('files:listDirectory', path, sort),
+    getDirectoryTree: (basePath?: string) => ipcRenderer.invoke('files:getDirectoryTree', basePath),
+  },
 });
