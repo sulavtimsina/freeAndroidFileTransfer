@@ -3,6 +3,7 @@ import { DeviceManager } from '../src/main/usb/deviceManager';
 
 describe('DeviceManager', () => {
   let dm: DeviceManager;
+
   beforeEach(() => { dm = new DeviceManager(); });
   afterEach(() => { dm.destroy(); });
 
@@ -22,7 +23,7 @@ describe('DeviceManager', () => {
     expect(dm.getConnectedDevice()).toBeNull();
   });
 
-  it('emits connecting then connected events', async () => {
+  it('emits device-event on connect (connecting + connected)', async () => {
     const events: any[] = [];
     dm.on('device-event', (e) => events.push(e));
     await dm.simulateConnect();
@@ -31,11 +32,12 @@ describe('DeviceManager', () => {
     expect(events[1].device.connectionStatus).toBe('connected');
   });
 
-  it('emits disconnected event', async () => {
+  it('emits device-event on disconnect', async () => {
     await dm.simulateConnect();
     const events: any[] = [];
     dm.on('device-event', (e) => events.push(e));
     await dm.simulateDisconnect();
+    expect(events.length).toBe(1);
     expect(events[0].type).toBe('disconnected');
   });
 

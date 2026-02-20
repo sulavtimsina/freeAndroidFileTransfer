@@ -39,12 +39,17 @@ export const DevicePanel: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <h2 style={{ margin: 0, fontSize: 16 }}>Device</h2>
         <span style={{
-          padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 600,
+          padding: '2px 8px',
+          borderRadius: 10,
+          fontSize: 11,
+          fontWeight: 600,
           background: status === 'connected' ? '#e8f5e9' : status === 'connecting' ? '#fff3e0' : '#f5f5f5',
           color: status === 'connected' ? '#2e7d32' : status === 'connecting' ? '#ef6c00' : '#757575',
         }}>{status}</span>
       </div>
+
       {error && <div style={{ color: '#e53935', fontSize: 13, marginBottom: 8 }}>{error}</div>}
+
       {device ? (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -55,12 +60,16 @@ export const DevicePanel: React.FC = () => {
             </div>
           </div>
           {device.storage.map((s) => <StorageBar key={s.id} storage={s} />)}
-          <button onClick={disconnect} style={{ marginTop: 8, padding: '6px 16px', cursor: 'pointer' }}>Disconnect</button>
+          <button onClick={disconnect} style={{ marginTop: 8, padding: '6px 16px', cursor: 'pointer' }}>
+            Disconnect
+          </button>
         </div>
       ) : (
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
           <p style={{ color: '#999', marginBottom: 12 }}>No device connected</p>
-          <button onClick={connect} style={{ padding: '8px 20px', cursor: 'pointer' }}>Simulate Connection</button>
+          <button onClick={connect} style={{ padding: '8px 20px', cursor: 'pointer' }}>
+            Simulate Connection
+          </button>
         </div>
       )}
     </div>
