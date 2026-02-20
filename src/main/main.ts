@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import { getDeviceManager } from './usb/deviceManager';
 import { listDirectory, getDirectoryTree } from './files/fileService';
+import { createFolder, renameItem, deleteItem } from './files/fileOperations';
 
 const isDev = !app.isPackaged;
 let mainWindow: BrowserWindow | null = null;
@@ -50,6 +51,18 @@ function registerIpcHandlers(): void {
 
 app.whenReady().then(() => {
   registerIpcHandlers();
+function registerFileOpsHandlers(): void {
+  ipcMain.handle('file:createFolder', (_e, parentPath: string, folderName: string) =>
+    createFolder(parentPath, folderName)
+  );
+  ipcMain.handle('file:rename', (_e, itemPath: string, newName: string) =>
+    renameItem(itemPath, newName)
+  );
+  ipcMain.handle('file:delete', (_e, itemPath: string) => deleteItem(itemPath));
+}
+
+app.whenReady().then(() => {
+  registerFileOpsHandlers();
   createWindow();
 });
 

@@ -1,6 +1,5 @@
 /**
  * File operations for Android device management (simulated).
- * In production, these would communicate with the device via MTP/ADB.
  */
 
 export interface FileOperationResult {
@@ -9,10 +8,7 @@ export interface FileOperationResult {
   path?: string;
 }
 
-export async function createFolder(
-  parentPath: string,
-  folderName: string
-): Promise<FileOperationResult> {
+export async function createFolder(parentPath: string, folderName: string): Promise<FileOperationResult> {
   if (!folderName || folderName.trim().length === 0) {
     return { success: false, error: 'Folder name cannot be empty' };
   }
@@ -20,15 +16,12 @@ export async function createFolder(
     return { success: false, error: 'Folder name contains invalid characters' };
   }
   const newPath = `${parentPath}/${folderName}`.replace(/\/+/g, '/');
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  await new Promise((r) => setTimeout(r, 200));
   console.log(`[FileOps] Created folder: ${newPath}`);
   return { success: true, path: newPath };
 }
 
-export async function renameItem(
-  itemPath: string,
-  newName: string
-): Promise<FileOperationResult> {
+export async function renameItem(itemPath: string, newName: string): Promise<FileOperationResult> {
   if (!newName || newName.trim().length === 0) {
     return { success: false, error: 'Name cannot be empty' };
   }
@@ -37,18 +30,16 @@ export async function renameItem(
   }
   const parentPath = itemPath.substring(0, itemPath.lastIndexOf('/'));
   const newPath = `${parentPath}/${newName}`.replace(/\/+/g, '/');
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  await new Promise((r) => setTimeout(r, 200));
   console.log(`[FileOps] Renamed: ${itemPath} -> ${newPath}`);
   return { success: true, path: newPath };
 }
 
-export async function deleteItem(
-  itemPath: string
-): Promise<FileOperationResult> {
+export async function deleteItem(itemPath: string): Promise<FileOperationResult> {
   if (!itemPath || itemPath === '/') {
     return { success: false, error: 'Cannot delete root directory' };
   }
-  await new Promise((resolve) => setTimeout(resolve, 300));
+  await new Promise((r) => setTimeout(r, 300));
   console.log(`[FileOps] Deleted: ${itemPath}`);
   return { success: true, path: itemPath };
 }

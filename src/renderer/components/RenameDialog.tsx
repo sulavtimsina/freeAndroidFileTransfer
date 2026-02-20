@@ -7,12 +7,7 @@ export interface RenameDialogProps {
   onCancel: () => void;
 }
 
-const RenameDialog: React.FC<RenameDialogProps> = ({
-  open,
-  currentName,
-  onRename,
-  onCancel,
-}) => {
+const RenameDialog: React.FC<RenameDialogProps> = ({ open, currentName, onRename, onCancel }) => {
   const [name, setName] = useState(currentName);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -22,48 +17,24 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
       setTimeout(() => {
         if (inputRef.current) {
           inputRef.current.focus();
-          const dotIndex = currentName.lastIndexOf('.');
-          inputRef.current.setSelectionRange(0, dotIndex > 0 ? dotIndex : currentName.length);
+          const dot = currentName.lastIndexOf('.');
+          inputRef.current.setSelectionRange(0, dot > 0 ? dot : currentName.length);
         }
       }, 50);
     }
   }, [open, currentName]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = name.trim();
-    if (trimmed && trimmed !== currentName) {
-      onRename(trimmed);
-    }
-  };
-
   if (!open) return null;
-
   return (
     <div className="dialog-overlay" onClick={onCancel}>
       <div className="dialog-box" onClick={(e) => e.stopPropagation()}>
         <h3 className="dialog-title">Rename</h3>
-        <form onSubmit={handleSubmit}>
-          <input
-            ref={inputRef}
-            type="text"
-            className="dialog-input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Escape' && onCancel()}
-            placeholder="Enter new name"
-          />
+        <form onSubmit={(e) => { e.preventDefault(); const t = name.trim(); if (t && t !== currentName) onRename(t); }}>
+          <input ref={inputRef} type="text" className="dialog-input" value={name}
+            onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Escape' && onCancel()} placeholder="Enter new name" />
           <div className="dialog-actions">
-            <button type="button" className="dialog-btn dialog-btn-cancel" onClick={onCancel}>
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="dialog-btn dialog-btn-confirm"
-              disabled={!name.trim() || name.trim() === currentName}
-            >
-              Rename
-            </button>
+            <button type="button" className="dialog-btn dialog-btn-cancel" onClick={onCancel}>Cancel</button>
+            <button type="submit" className="dialog-btn dialog-btn-confirm" disabled={!name.trim() || name.trim() === currentName}>Rename</button>
           </div>
         </form>
       </div>
