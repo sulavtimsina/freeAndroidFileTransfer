@@ -259,36 +259,66 @@ body {
   background: #f5f5f7;
 }
 
-.steps {
+.steps-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
-  text-align: center;
+  gap: 32px;
 }
 
-.step-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
+.step-card {
+  position: relative;
+  text-align: center;
+  padding: 36px 24px 32px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.step-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-4px);
+}
+
+.step-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--accent);
   color: #fff;
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: #f0f5ff;
+  color: var(--accent);
   margin-bottom: 16px;
 }
 
-.step h3 {
-  font-size: 18px;
+.step-card h3 {
+  font-size: 16px;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
-.step p {
-  font-size: 15px;
+.step-card p {
+  font-size: 14px;
   color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 /* CTA */
@@ -339,9 +369,13 @@ body {
   .hero-content { order: 1; }
   .hero-image { order: 2; }
 
-  .features-grid,
-  .steps {
+  .features-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .steps-grid {
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
 
@@ -349,6 +383,12 @@ body {
 
   .section-title { font-size: 28px; }
   .cta-section h2 { font-size: 28px; }
+}
+
+@media (max-width: 540px) {
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
