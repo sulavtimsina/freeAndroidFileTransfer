@@ -31,6 +31,10 @@ export interface DeviceEvent {
 
 export interface ElectronAPI {
   platform: string;
+  files: {
+    listDirectory: (path: string, sort?: { field: string; direction: string }) => Promise<any[]>;
+    getDirectoryTree: (basePath?: string) => Promise<any>;
+  };
   device: {
     onDeviceEvent: (callback: (event: DeviceEvent) => void) => void;
     removeDeviceListener: () => void;
