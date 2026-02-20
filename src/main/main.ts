@@ -1,10 +1,12 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
+import { getDeviceManager } from './usb/deviceManager';
 
 const isDev = !app.isPackaged;
+let mainWindow: BrowserWindow | null = null;
 
 function createWindow(): void {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 800,
@@ -26,20 +28,31 @@ function createWindow(): void {
   }
 
   mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
+    mainWindow!.show();
+  });
+
+  const dm = getDeviceManager();
+  dm.on('device-event', (event) => {
+    mainWindow?.webContents.send('device:event', event);
   });
 }
 
-app.whenReady().then(createWindow);
+function registerIpcHandlers(): void {
+  const dm = getDeviceManager();
+  ipcMain.handle('device:getConnected', () => dm.getConnectedDevice());
+  ipcMain.handle('device:simulateConnect', () => dm.simulateConnect());
+  ipcMain.handle('device:simulateDisconnect', () => dm.simulateDisconnect());
+}
+
+app.whenReady().then(() => {
+  registerIpcHandlers();
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  if (process.platform !== 'darwin') app.quit();
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
