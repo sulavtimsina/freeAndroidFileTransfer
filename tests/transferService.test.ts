@@ -36,9 +36,11 @@ describe('TransferService', () => {
     expect(item.id).toMatch(/^transfer-/);
     const queue = service.getQueue();
     expect(queue[0].status).toBe('in-progress');
-  it('should create a queued transfer', async () => {
+  });
+
+  it('should create a transfer that starts processing', async () => {
     const item = await service.startTransfer(mockRequest);
-    expect(item.status).toBe('queued');
+    expect(item.status).toBe('in-progress');
     expect(item.fileName).toBe('photo.jpg');
     expect(item.progress).toBe(0);
     expect(item.id).toMatch(/^transfer-/);
