@@ -1,6 +1,5 @@
 import React from 'react';
-import { StorageInfo } from '../../shared/types';
-import { useDevice } from '../hooks/useDevice';
+import { Device, ConnectionStatus, StorageInfo } from '../../shared/types';
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
@@ -31,8 +30,13 @@ const StorageBar: React.FC<{ storage: StorageInfo }> = ({ storage }) => {
   );
 };
 
-export const DevicePanel: React.FC = () => {
-  const { device, status, error, connect, disconnect } = useDevice();
+interface DevicePanelProps {
+  device: Device | null;
+  status: ConnectionStatus;
+  error: string | null;
+}
+
+export const DevicePanel: React.FC<DevicePanelProps> = ({ device, status, error }) => {
 
   return (
     <div style={{ padding: 16, borderBottom: '1px solid #e0e0e0' }}>
@@ -60,16 +64,16 @@ export const DevicePanel: React.FC = () => {
             </div>
           </div>
           {device.storage.map((s) => <StorageBar key={s.id} storage={s} />)}
-          <button onClick={disconnect} style={{ marginTop: 8, padding: '6px 16px', cursor: 'pointer' }}>
-            Disconnect
-          </button>
         </div>
       ) : (
-        <div style={{ textAlign: 'center', padding: '20px 0' }}>
-          <p style={{ color: '#999', marginBottom: 12 }}>No device connected</p>
-          <button onClick={connect} style={{ padding: '8px 20px', cursor: 'pointer' }}>
-            Simulate Connection
-          </button>
+        <div style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>
+          <p style={{ color: '#999', marginBottom: 8 }}>No phone found. To connect:</p>
+          <ol style={{ paddingLeft: 18 }}>
+            <li>On the phone open Settings → About phone and tap <b>Build number</b> 7 times.</li>
+            <li>Go to Settings → System → Developer options and turn on <b>USB debugging</b>.</li>
+            <li>Plug the phone into this Mac with a USB data cable.</li>
+            <li>Unlock the phone and tap <b>Allow</b> on the "Allow USB debugging?" prompt.</li>
+          </ol>
         </div>
       )}
     </div>

@@ -25,7 +25,7 @@ const EXT_MAP: Record<string, FileType> = {
   zip: 'archive', tar: 'archive', gz: 'archive', rar: 'archive', '7z': 'archive',
 };
 
-function getFileType(name: string, isDir: boolean): FileType {
+export function getFileType(name: string, isDir: boolean): FileType {
   if (isDir) return 'folder';
   const ext = name.split('.').pop()?.toLowerCase() ?? '';
   return EXT_MAP[ext] ?? 'generic';

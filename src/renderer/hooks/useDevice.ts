@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Device, DeviceEvent, ConnectionStatus } from '../../shared/types';
 
+/** Tracks the phone the main process finds over adb (it polls every 2s). */
 export function useDevice() {
   const [device, setDevice] = useState<Device | null>(null);
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
@@ -19,7 +20,9 @@ export function useDevice() {
       } else if (event.type === 'disconnected') {
         setDevice(null);
         setStatus('disconnected');
+        setError(null);
       } else if (event.type === 'error') {
+        setDevice(null);
         setError(event.error ?? 'Unknown error');
         setStatus('error');
       }
@@ -28,23 +31,5 @@ export function useDevice() {
     return () => { window.electronAPI.device.removeDeviceListener(); };
   }, []);
 
-  const connect = useCallback(async () => {
-    setStatus('connecting');
-    try {
-      const dev = await window.electronAPI.device.simulateConnect();
-      setDevice(dev);
-      setStatus('connected');
-    } catch (e: any) {
-      setError(e.message);
-      setStatus('error');
-    }
-  }, []);
-
-  const disconnect = useCallback(async () => {
-    await window.electronAPI.device.simulateDisconnect();
-    setDevice(null);
-    setStatus('disconnected');
-  }, []);
-
-  return { device, status, error, connect, disconnect };
+  return { device, status, error };
 }

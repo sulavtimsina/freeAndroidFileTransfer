@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { Device, DeviceEvent } from '../../shared/types';
+import { listAdbDevices, describeDevice } from '../adb/adbDevices';
 
 const SIMULATED_DEVICE: Device = {
   id: 'sim-pixel-7',
@@ -31,6 +32,8 @@ const SIMULATED_DEVICE: Device = {
 export class DeviceManager extends EventEmitter {
   private connectedDevice: Device | null = null;
   private pollInterval: ReturnType<typeof setInterval> | null = null;
+  private polling = false;
+  private lastError: string | null = null;
 
   constructor() {
     super();
@@ -40,11 +43,55 @@ export class DeviceManager extends EventEmitter {
     return this.connectedDevice;
   }
 
+  /** Watch `adb devices` and emit connect/disconnect/error events as phones come and go. */
   startPolling(intervalMs = 2000): void {
     if (this.pollInterval) return;
-    this.pollInterval = setInterval(() => {
-      // Real implementation: scan USB bus for MTP devices
-    }, intervalMs);
+    this.pollInterval = setInterval(() => { void this.poll(); }, intervalMs);
+    void this.poll();
+  }
+
+  private async poll(): Promise<void> {
+    if (this.polling) return;
+    this.polling = true;
+    try {
+      const lines = await listAdbDevices();
+      const ready = lines.find((l) => l.state === 'device');
+      if (ready) {
+        if (this.connectedDevice?.id !== ready.serial) {
+          const dev = await describeDevice(ready);
+          this.connectedDevice = dev;
+          this.lastError = null;
+          this.emit('device-event', { type: 'connected', device: dev } as DeviceEvent);
+        }
+        return;
+      }
+      if (this.connectedDevice) await this.simulateDisconnect();
+      const pending = lines[0];
+      const error = !pending ? null
+        : pending.state === 'unauthorized' ? 'Unlock your phone and tap "Allow" on the USB debugging prompt.'
+        : `Phone is ${pending.state}. Try unplugging and reconnecting the cable.`;
+      this.setError(error);
+    } catch (e: any) {
+      this.setError(`adb error: ${e.message}`);
+    } finally {
+      this.polling = false;
+    }
+  }
+
+  private setError(error: string | null): void {
+    if (error === this.lastError) return;
+    this.lastError = error;
+    this.emit('device-event', error
+      ? { type: 'error', error } as DeviceEvent
+      : { type: 'disconnected' } as DeviceEvent);
+  }
+
+  /** Re-read storage numbers after files change. */
+  async refresh(): Promise<Device | null> {
+    if (!this.connectedDevice) return null;
+    this.connectedDevice = await describeDevice({ serial: this.connectedDevice.id, state: 'device' });
+    this.emit('device-event', { type: 'connected', device: this.connectedDevice } as DeviceEvent);
+    return this.connectedDevice;
   }
 
   stopPolling(): void {

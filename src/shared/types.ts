@@ -65,6 +65,12 @@ export interface TransferRequest {
 
 // Electron API
 
+export interface FileOperationResult {
+  success: boolean;
+  error?: string;
+  path?: string;
+}
+
 export interface ElectronAPI {
   platform: string;
   files: {
@@ -75,16 +81,24 @@ export interface ElectronAPI {
     onDeviceEvent: (callback: (event: DeviceEvent) => void) => void;
     removeDeviceListener: () => void;
     getConnectedDevice: () => Promise<Device | null>;
-    simulateConnect: () => Promise<Device>;
-    simulateDisconnect: () => Promise<void>;
+    refresh: () => Promise<Device | null>;
+  };
+  fileOps: {
+    createFolder: (parentPath: string, folderName: string) => Promise<FileOperationResult>;
+    rename: (itemPath: string, newName: string) => Promise<FileOperationResult>;
+    delete: (itemPath: string) => Promise<FileOperationResult>;
   };
   transfer: {
-    start: (request: TransferRequest) => Promise<TransferItem>;
+    upload: (localPaths: string[] | null, deviceDir: string) => Promise<TransferItem[]>;
+    download: (devicePaths: string[]) => Promise<TransferItem[]>;
     cancel: (id: string) => Promise<void>;
     getQueue: () => Promise<TransferItem[]>;
-    onProgress: (callback: (progress: TransferProgress) => void) => void;
+    clearFinished: () => Promise<void>;
+    reveal: (localPath: string) => Promise<void>;
+    onProgress: (callback: (progress: TransferProgress, item: TransferItem) => void) => void;
     removeProgressListener: () => void;
   };
+  getPathForFile: (file: File) => string;
 }
 
 declare global {
