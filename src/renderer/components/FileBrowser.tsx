@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { Breadcrumb } from './Breadcrumb';
 import { Toolbar, ViewMode, SortField } from './Toolbar';
 
 // Types matching fileService
-interface FileEntry {
+export interface FileEntry {
   name: string;
   path: string;
   type: 'file' | 'directory';
@@ -40,18 +40,31 @@ interface FileBrowserProps {
   files: FileEntry[];
   tree: TreeNode | null;
   currentPath: string;
+  loading?: boolean;
+  sortField: SortField;
+  onSortChange: (field: SortField) => void;
   onNavigate: (path: string) => void;
   onNewFolder: () => void;
   onDelete: (paths: string[]) => void;
+  onUpload: () => void;
+  onDownload: (paths: string[]) => void;
+  onRename: (path: string) => void;
+  onRefresh: () => void;
+  onContextMenu: (entry: FileEntry, x: number, y: number) => void;
 }
 
 export const FileBrowser: React.FC<FileBrowserProps> = ({
-  files, tree, currentPath, onNavigate, onNewFolder, onDelete,
+  files, tree, currentPath, loading, sortField, onSortChange, onNavigate, onNewFolder, onDelete,
+  onUpload, onDownload, onRename, onRefresh, onContextMenu,
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [sortField, setSortField] = useState<SortField>('name');
   const [searchQuery, setSearchQuery] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  // Drop selections that no longer exist after a refresh or navigation.
+  useEffect(() => {
+    setSelected((prev) => new Set([...prev].filter((p) => files.some((f) => f.path === p))));
+  }, [files]);
 
   const filteredFiles = useMemo(() => {
     if (!searchQuery) return files;
@@ -60,19 +73,31 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
   }, [files, searchQuery]);
 
   const handleClick = (entry: FileEntry, e: React.MouseEvent) => {
+    if (e.metaKey || e.ctrlKey) {
+      const next = new Set(selected);
+      next.has(entry.path) ? next.delete(entry.path) : next.add(entry.path);
+      setSelected(next);
+    } else {
+      setSelected(new Set([entry.path]));
+    }
+  };
+
+  const handleDoubleClick = (entry: FileEntry) => {
     if (entry.type === 'directory') {
       onNavigate(entry.path);
       setSelected(new Set());
     } else {
-      if (e.metaKey || e.ctrlKey) {
-        const next = new Set(selected);
-        next.has(entry.path) ? next.delete(entry.path) : next.add(entry.path);
-        setSelected(next);
-      } else {
-        setSelected(new Set([entry.path]));
-      }
+      onDownload([entry.path]);
     }
   };
+
+  const handleContextMenu = (entry: FileEntry, e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!selected.has(entry.path)) setSelected(new Set([entry.path]));
+    onContextMenu(entry, e.clientX, e.clientY);
+  };
+
+  const selectedPaths = Array.from(selected);
 
   return (
     <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -81,14 +106,17 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
         <Breadcrumb path={currentPath} onNavigate={(p) => { onNavigate(p); setSelected(new Set()); }} />
         <Toolbar
           viewMode={viewMode} sortField={sortField} searchQuery={searchQuery}
-          onViewModeChange={setViewMode} onSortChange={setSortField}
+          onViewModeChange={setViewMode} onSortChange={onSortChange}
           onSearchChange={setSearchQuery} onNewFolder={onNewFolder}
-          onDelete={() => onDelete(Array.from(selected))} hasSelection={selected.size > 0}
+          onDelete={() => onDelete(selectedPaths)} hasSelection={selected.size > 0}
+          singleSelection={selected.size === 1}
+          onUpload={onUpload} onDownload={() => onDownload(selectedPaths)}
+          onRename={() => onRename(selectedPaths[0])} onRefresh={onRefresh}
         />
         <div style={{ flex: 1, overflowY: 'auto', padding: viewMode === 'grid' ? 16 : 0 }}>
           {filteredFiles.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: '#999' }}>
-              {searchQuery ? 'No matching files' : 'Empty folder'}
+              {loading ? 'Loading…' : searchQuery ? 'No matching files' : 'Empty folder'}
             </div>
           ) : viewMode === 'list' ? (
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -105,17 +133,19 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
                   <tr
                     key={f.path}
                     onClick={(e) => handleClick(f, e)}
+                    onDoubleClick={() => handleDoubleClick(f)}
+                    onContextMenu={(e) => handleContextMenu(f, e)}
                     style={{
                       cursor: 'pointer', borderBottom: '1px solid #f0f0f0',
                       background: selected.has(f.path) ? '#007aff15' : 'transparent',
                     }}
                   >
-                    <td style={{ padding: '6px 16px' }}>
+                    <td style={{ padding: '6px 16px', userSelect: 'none' }}>
                       <span style={{ marginRight: 8 }}>{FILE_ICONS[f.fileType] ?? '📎'}</span>
                       {f.name}
                     </td>
                     <td style={{ padding: '6px 16px', textAlign: 'right', color: '#888' }}>
-                      {f.type === 'directory' ? `${f.size} items` : formatBytes(f.size)}
+                      {f.type === 'directory' ? '—' : formatBytes(f.size)}
                     </td>
                     <td style={{ padding: '6px 16px', textAlign: 'right', color: '#888' }}>{formatDate(f.modifiedAt)}</td>
                     <td style={{ padding: '6px 16px', color: '#888' }}>{f.fileType}</td>
@@ -129,6 +159,8 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
                 <div
                   key={f.path}
                   onClick={(e) => handleClick(f, e)}
+                  onDoubleClick={() => handleDoubleClick(f)}
+                  onContextMenu={(e) => handleContextMenu(f, e)}
                   style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
                     padding: 12, borderRadius: 8, cursor: 'pointer',
